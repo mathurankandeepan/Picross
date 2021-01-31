@@ -1,0 +1,153 @@
+fonction COLORELIG_REC ( G , i , j , l , Nouveau , max , case_noir) :       
+    si j < 0 retourner ( True , G ,  Nouveau   )
+    
+    # if somme des cases noirs de la sequence de la ligne i == nombre de cases noires posées 
+    si max = case_noir alors         
+        si sequence_valide_complet_lignes ( i , M - 1 , G ) :
+            pour k  <= j faire
+                if (i ,j) == vide :
+                    change_couleur( i , k , blanc , G ) 
+                    Nouveau = Nouveau U { k }      
+            retourner ( Vrai , G ,  Nouveau)
+        retourner (Faux, [], {} )    
+
+    si  case(i,j) est noire  alors
+        case_noir += 1
+
+    # else case vide
+    sinon si  cas(i,j) est vide 
+        noir = Faux                              
+        blanc = Faux                             
+
+        change_couleur( i , j , blanc , G )
+        blanc = sequence_valide_complet_lignes( i , j , G ) 
+        change_couleur(i, j, noir, G)
+        noir = sequence_valide_complet_lignes( i , j , G ) 
+
+        si non blanc et non noir alors
+            retourner (Faux , G , {} )
+        sinon si noir et non blanc alors      
+            Nouveau = Nouveau U { j }  
+            case_noir +=1
+        sinon si blanc et non noir alors
+            change_couleur(i,j, blanc,G)
+            Nouveau = Nouveau U { j }  
+        else :
+            change_couleur(i,j, vide,G)
+
+    retourner COLORELIG_REC ( G , i , j - 1  , l , Nouveau , max , case_noir)
+    
+
+fonction COLORELIG ( G , i ) :
+    Nouveau = set()
+    max = 0
+    case_noir = 0
+    l = len(Seq_lignes[i]) 
+    pour 0 < i < l
+        max += Seq_lignes(i,k)
+    retourner COLORELIG_REC ( G , i , M-1 , l , Nouveau, max , case_noir)
+
+
+
+
+
+
+
+
+
+fonction sequence_valide_lignes_rec ( i , j , ListeSeq, l , G ):    
+    si tab(l,j) !=Vide  alors retourner tab(l,j)   # si on a déjà vu T(j,l) on retourne la valeur trouvée
+    si l = 0 alors      # (cas 1) si la sequence est vide on verifie s'il y a des cases noires entre 0 et (i,j)
+            pour n < j+1 faire
+                si (i,n) = noir alors 
+                    tab(l,j) = Faux
+                    retourner Faux 
+    si  j <  sl - 1 alors  # (cas 2a)                                    
+                tab (l,j) = Faux
+                returner Faux
+    si  j =  sl - 1  alors # (cas 2b)
+        pour n < j faire 
+            if (i,j) = blanc
+                tab(l,j) = Faux 
+            sinon tab(l,j) = Vrai     
+        si tab(l,j) = 1 alors
+            si l = 1 alors tab(l,j) = Vrai
+                    sinon tab( l,j) = Faux
+        retourner tab(l,j)
+    # (cas 2c)
+    si (i,j) = blanc alors 
+        tab (l,j) = sequence_valide_lignes_rec ( i , j - 1 , ListeSeq , l , G ) 
+        returner  tab(l,j) 
+                                         
+    si (i,j) = noir # si (i,j) noire on verifie s'il y a des cases blanches de j - 1 à j - sl + 1
+        pour 0 < n < sl faire
+            si (i, j-n) alors
+                tab(l,j) =  Faux
+            sinon tab(l,j) = Vrai
+        si tab(l,j) = Faux :  
+            retourner tab(l,j)
+        si (i, j-sl) = noir # si la case juste après la séquence est noire, alors T(j,l) = Faux
+            tab(l,j) = Faux
+            retourner Faux   
+        # on passe a la valeur suivante du T
+        tab(l,j) = sequence_valide_lignes_rec( i , j - sl - 1 , ListeSeq , l - 1 , G )                                     
+        retourner tab(l,j) 
+    # si (i,j) vide
+    pour 1 < n < sl faire 
+        si (i, j-n) = noir alors
+            tab(l,j) = sequence_valide_lignes_rec(i, j-1, ListeSeq, l , G)                                                                   
+            retourner tab(l,j)
+    
+    si (i, j-sl) == noire:   # si la case juste après la séquence est noire, alors T(j,l) = Faux
+        tab(l,j) = sequence_valide_lignes_rec( i , j - 1 , ListeSeq , l , G )            
+        retourner tab(l,j)
+    tab(l,j) =  sequence_valide_lignes_rec( i , j - sl - 1 , ListeSeq , l - 1 , G )  
+                or sequence_valide_lignes_rec( i , j - 1 , ListeSeq , l , G )                                                               
+    retourner  tab(l,j)
+
+
+
+fonction sequence_valide_complet_lignes( i , j , G ):
+    init_T_lignes(l)
+    retourner sequence_valide_lignes_rec ( i , Seq_lignes , M - 1 , l , G )
+
+
+
+fonction sequence_valide( i, j, ListeSeq, l) : 
+    si l = 0 alors retourner Vrai
+
+    si j < ListeSeq(i,l-1)  - 1 alors retourner Faux  
+
+    si j = ListeSeq(i,l-1) - 1 alors
+
+    si l = 1 alors retourner Vrai
+
+    retourner sequence_valide(i, j - ListeSeq(i,l-1) -1, ListeSeq , l-1) 
+              OR sequence_valide(i, j -1 , ListeSeq, l) 
+
+
+
+
+
+              
+
+Arbre :
+
+
+                                    (ok, G)                             0
+                                   /       \                            |
+                                  /         \                           |
+                                 /           \                          |                                 
+                                /             \                         |
+                    (ok,G_blanc)              (ok,G_noir)               1
+                     /        \                /        \               |
+                    /          \              /          \              |      
+                   /            \            /            \             |
+         (ok,G_blanc)     (ok,G_noir)    (ok,G_blanc)    (ok,G_noir)    2
+            ...             ...             /    \           ...        |   
+            ...             ...            /      \          ...       ...
+             |               |           ...       .          |         |
+        (False,[])     (False,[])   (False,[])      .      (False,[])   |
+                                                     .                  |
+                                                      .                 |
+                                                    (True, G)           MN dans le pire cas        
